@@ -7,7 +7,6 @@ complete as many tasks as possible.
 
 | Exercise | What | Our code |
 | --- | --- | --- |
-| 0 | Explore the default system (not graded) | `experiments/ex0/` |
 | 1 | Better task scheduler than the naive baseline | `Start-Kit/python/user_scheduler/` |
 | 2 | Better executor under random delays | `Start-Kit/python/user_executor/` |
 
@@ -16,7 +15,6 @@ complete as many tasks as possible.
 ```text
 Start-Kit/     LoRR Start-Kit v3.1.0, vendored; only python/user_scheduler and python/user_executor are ours
 PlanViz/       LoRR visualiser (submodule, unmodified)
-experiments/   instance variants and run scripts
 tools/         PlanViz launcher, WSL shortcut
 RunOutput/     simulator outputs (not committed)
 ```
