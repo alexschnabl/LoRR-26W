@@ -1,0 +1,7 @@
+# Keep LF everywhere: the Start-Kit is built and run inside WSL/Linux,
+# and shell scripts with CRLF line endings fail there.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.png binary
+*.gif binary
+*.pdf binary

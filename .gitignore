@@ -1,0 +1,24 @@
+# Simulator run outputs (large, reproducible from the run scripts)
+RunOutput/
+output.json
+*.log
+
+# Build artifacts
+build/
+build-*/
+cmake-build-*/
+*.so
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

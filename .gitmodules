@@ -1,0 +1,3 @@
+[submodule "PlanViz"]
+	path = PlanViz
+	url = https://github.com/MAPF-Competition/PlanViz.git
