@@ -1,19 +1,15 @@
 # LoRR-26W
 
-Course project for **Advanced Topics of Artificial Intelligence** (winter semester 2026/27),
-Assignment 1: multi-agent planning on the [League of Robot Runners](https://www.leagueofrobotrunners.org/)
-simulator. Hundreds of robots on a grid map complete tasks that appear over time; the goal is to
+Course project for **Advanced Topics of Artificial Intelligence** (winter semester 2026/27).
+Assignment 1 is multi-agent planning on the [League of Robot Runners](https://www.leagueofrobotrunners.org/)
+simulator: hundreds of robots on a grid map complete tasks that appear over time, and the goal is to
 complete as many tasks as possible.
-
-| Exercise | What | Our code |
-| --- | --- | --- |
-| 1 | Better task scheduler than the naive baseline | `Start-Kit/python/user_scheduler/` |
-| 2 | Better executor under random delays | `Start-Kit/python/user_executor/` |
 
 ## Layout
 
 ```text
-Start-Kit/     LoRR Start-Kit v3.1.0, vendored; only python/user_scheduler and python/user_executor are ours
+assignment1/   our schedulers (ex1/), executors (ex2/), results per exercise, run.sh
+Start-Kit/     LoRR Start-Kit v3.1.0, vendored; only the two loader files in python/user_* are changed
 PlanViz/       LoRR visualiser (submodule, unmodified)
 tools/         PlanViz launcher, WSL shortcut
 RunOutput/     simulator outputs (not committed)
@@ -21,34 +17,27 @@ RunOutput/     simulator outputs (not committed)
 
 The first commit is upstream Start-Kit
 [`v3.1.0`](https://github.com/MAPF-Competition/Start-Kit/tree/9bc75d9dd9883de049294ab2981bf325bbe19d49)
-unchanged, so diffs against it show exactly our changes.
+unchanged, so diffs against it show exactly our changes. See [assignment1/](assignment1/) for how our
+code is loaded and run.
 
-## Build and run
+## Setup
 
-Linux or WSL (Ubuntu 24.04) with CMake, Boost and pybind11 ≥ 3.0.1. Clone with submodules:
+Linux or WSL (Ubuntu 24.04) with CMake, Boost and pybind11 ≥ 3.0.1.
 
 ```bash
 git clone --recurse-submodules https://github.com/alexschnabl/LoRR-26W.git
+cd LoRR-26W
+assignment1/run.sh --scheduler ex1/naive -i Start-Kit/example_problems/random.domain/random-example_400.json -s 200
 ```
 
-Run everything from `Start-Kit/`, because the Python scheduler and executor are imported relative to
-the working directory:
+`run.sh` builds the Start-Kit on first use. To visualise a run (full output, i.e. without `-c 3`):
 
 ```bash
-cd Start-Kit
-cmake -B build ./ -DCMAKE_BUILD_TYPE=Release && make -C build -j"$(nproc)"
-
-./build/lifelong -i example_problems/random.domain/random-example_400.json -o ../RunOutput/out.json -s 1000
-./build/lifelong ... --schedulerPython true --executorPython true   # use our Python code
-
-python3 ../tools/planviz_launch.py --map example_problems/random.domain/maps/random-64-64-10.map --plan ../RunOutput/out.json
+python3 tools/planviz_launch.py --map <file.map> --plan RunOutput/<output.json>
 ```
 
-`tools/planviz_launch.py` runs PlanViz but keeps its window on one monitor (WSLg reports all
-monitors as one screen). It needs PlanViz's `requirements.txt` installed.
-
-`-c 3` writes only summary statistics, `-d 2` hides info logs, `-s 200` is a quick smoke test.
-A run takes about `ticks × 100 ms`, so run experiments in parallel.
+The launcher keeps the PlanViz window on one monitor (WSLg reports all monitors as one screen) and
+needs PlanViz's `requirements.txt` installed.
 
 ## License
 

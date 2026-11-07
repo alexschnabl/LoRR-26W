@@ -1,55 +1,25 @@
 """
-pyExecutor.py — Default naive Python Executor.
+pyExecutor.py — loader for our executors.
 
-process_new_plan pushes all plan actions to staged, truncates to 10,
-and propagates the terminal state from the agent's current location.
+The simulator always imports class pyExecutor from this file. Our executors live
+outside the Start-Kit (assignment1/ex2/); this file loads the one named by the
+environment variable LORR_EXECUTOR (a .py path, absolute or relative to the repository
+root) and exposes its pyExecutor class. Default: the naive baseline.
 """
-import MAPF
-import random
+import importlib.util
+import os
+import sys
+from pathlib import Path
 
-MAX_STAGED = 10
-DELTA = {0: 1, 1: None, 2: -1, 3: None}  # filled in initialize
+ROOT = Path(__file__).resolve().parents[3]
+path = Path(os.environ.get("LORR_EXECUTOR") or "assignment1/ex2/naive.py")
+if not path.is_absolute():
+    path = ROOT / path
 
+sys.path.insert(0, str(path.parent))  # lets the executor import helpers next to it
+spec = importlib.util.spec_from_file_location("lorr_user_executor", path)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+print(f"[executor] {path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}", file=sys.stderr)
 
-class pyExecutor:
-    def __init__(self):
-        self.env = None
-
-    def initialize(self, preprocess_time_limit: int):
-        DELTA[1] = self.env.cols
-        DELTA[3] = -self.env.cols
-
-    def process_new_plan(self, sync_time_limit: int, plan, staged_actions) -> list:
-        # Push all plan actions, then truncate to MAX_STAGED
-        for i in range(len(plan.actions)):
-            for a in plan.actions[i]:
-                staged_actions[i].append(a)
-            if len(staged_actions[i]) > MAX_STAGED:
-                del staged_actions[i][MAX_STAGED:]
-
-        # Propagate terminal state from current location through staged actions
-        predicted = []
-        cols = self.env.cols
-        rows = self.env.rows
-        env_map = self.env.map
-        for i in range(self.env.num_of_agents):
-            loc = self.env.curr_states[i].location
-            ori = self.env.curr_states[i].orientation
-            for a in staged_actions[i]:
-                if a == MAPF.Action.FW:
-                    nxt = loc + DELTA[ori]
-                    nr, nc = divmod(nxt, cols)
-                    if 0 <= nr < rows and 0 <= nc < cols and env_map[nxt] == 0:
-                        loc = nxt
-                elif a == MAPF.Action.CR:
-                    ori = (ori + 1) % 4
-                elif a == MAPF.Action.CCR:
-                    ori = (ori + 3) % 4
-            predicted.append(MAPF.State(loc, -1, ori))
-        return predicted
-
-    def next_command(self, exec_time_limit: int) -> list:
-        return [
-            random.choice([MAPF.ExecutionCommand.GO, MAPF.ExecutionCommand.STOP])
-            for _ in range(self.env.num_of_agents)
-        ]
+pyExecutor = module.pyExecutor

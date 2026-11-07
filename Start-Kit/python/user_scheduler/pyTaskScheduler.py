@@ -1,38 +1,25 @@
 """
-pyTaskScheduler.py — Default naive Python Task Scheduler.
+pyTaskScheduler.py — loader for our schedulers.
 
-Greedily assigns unassigned tasks to free agents in iteration order.
+The simulator always imports class pyTaskScheduler from this file. Our schedulers live
+outside the Start-Kit (assignment1/ex1/); this file loads the one named by the
+environment variable LORR_SCHEDULER (a .py path, absolute or relative to the repository
+root) and exposes its pyTaskScheduler class. Default: the naive baseline.
 """
-import MAPF
+import importlib.util
+import os
+import sys
+from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[3]
+path = Path(os.environ.get("LORR_SCHEDULER") or "assignment1/ex1/naive.py")
+if not path.is_absolute():
+    path = ROOT / path
 
-class pyTaskScheduler:
-    def __init__(self):
-        self.env = None
-        self.free_agents = set()
-        self.free_tasks = set()
+sys.path.insert(0, str(path.parent))  # lets the scheduler import helpers next to it
+spec = importlib.util.spec_from_file_location("lorr_user_scheduler", path)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+print(f"[scheduler] {path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}", file=sys.stderr)
 
-    def initialize(self, preprocess_time_limit: int):
-        pass
-
-    def plan(self, time_limit: int) -> list:
-        self.free_agents.update(self.env.new_freeagents)
-        self.free_tasks.update(self.env.new_tasks)
-
-        schedule = list(self.env.curr_task_schedule)
-        assigned_agents = []
-        assigned_tasks = []
-
-        for agent_id in sorted(self.free_agents):
-            if not self.free_tasks:
-                break
-            task_id = min(self.free_tasks)  # pick lowest available task id
-            schedule[agent_id] = task_id
-            assigned_agents.append(agent_id)
-            assigned_tasks.append(task_id)
-            self.free_tasks.discard(task_id)
-
-        for a in assigned_agents:
-            self.free_agents.discard(a)
-
-        return schedule
+pyTaskScheduler = module.pyTaskScheduler
